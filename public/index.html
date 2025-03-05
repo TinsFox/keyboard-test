@@ -83,7 +83,7 @@
     <!-- 按键历史记录 -->
     <div id="key-history-panel"
       class="fixed right-4 top-36 w-80 bg-white rounded-2xl shadow-lg transition-transform duration-300">
-      <div class="p-4">
+      <div class="p-6">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-black text-lg font-medium">按键历史记录</h2>
           <div class="flex gap-2">
@@ -100,13 +100,13 @@
         <div id="key-history" class="max-h-[70vh] overflow-y-auto">
           <table class="w-full text-sm">
             <thead class="text-black opacity-70">
-              <tr>
+              <tr class="">
                 <th class="text-left py-2">按键</th>
                 <th class="text-left py-2">时间</th>
                 <th class="text-left py-2">间隔</th>
               </tr>
             </thead>
-            <tbody id="key-history-body" class="text-black">
+            <tbody id="key-history-body" class="text-black divide-y divide-gray-100">
             </tbody>
           </table>
         </div>
@@ -357,10 +357,10 @@
 
       function updateKeyHistory() {
         keyHistoryBody.innerHTML = keyHistory.map((info, index) => `
-          <tr class="border-t border-gray-100 ${index === 0 ? 'bg-gray-100' : ''}">
-            <td class="py-2">${info.key}</td>
-            <td class="py-2">${info.timestamp}</td>
-            <td class="py-2">${info.timeDiff} ms</td>
+          <tr class="${index === 0 ? 'bg-gray-50 rounded-xl' : ''}">
+            <td class="py-2 pl-4 ${index === 0 ? 'rounded-l-xl' : ''}">${info.key}</td>
+            <td class="py-2 px-2">${info.timestamp}</td>
+            <td class="py-2 pr-4 ${index === 0 ? 'rounded-r-xl' : ''}">${info.timeDiff} ms</td>
           </tr>
         `).join('');
       }
