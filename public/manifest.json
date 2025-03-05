@@ -1,0 +1,21 @@
+{
+  "name": "键盘测试工具",
+  "short_name": "键盘测试",
+  "description": "免费在线键盘测试工具，提供按键响应时间检测、按键次数统计、虚拟键盘可视化显示和文本输入测试功能",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
