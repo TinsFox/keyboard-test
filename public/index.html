@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>键盘测试工具</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+  <title>键盘测试工具 - 免费在线键盘性能检测</title>
+
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="免费在线键盘测试工具，提供按键响应时间检测、按键次数统计、虚拟键盘可视化显示和文本输入测试功能，帮助您轻松检测和评估键盘性能。">
+  <meta name="keywords" content="键盘测试,按键测试,键盘检测工具,按键响应时间,虚拟键盘,键盘性能测试">
+  <meta name="robots" content="index, follow">
+
+  <!-- Open Graph Tags -->
+  <meta property="og:title" content="键盘测试工具 - 免费在线键盘性能检测">
+  <meta property="og:description" content="免费在线键盘测试工具，提供按键响应时间检测、虚拟键盘显示等功能，帮助您轻松检测键盘性能。">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://keyboard.afjs.dev/keyboard-og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:site_name" content="键盘测试工具">
+  <meta property="og:locale" content="zh_CN">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="键盘测试工具 - 免费在线键盘性能检测">
+  <meta name="twitter:description" content="免费在线键盘测试工具，提供按键响应时间检测、虚拟键盘显示等功能，帮助您轻松检测键盘性能。">
+  <meta name="twitter:image" content="https://keyboard.afjs.dev/keyboard-og.png">
+
+  <style>
+    body {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .key {
+      transition: all 0.15s ease;
+    }
+
+    .key.active {
+      transform: translateY(2px);
+      background-color: #f3f4f6;
+    }
+
+    .gradient-bg {
+      background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+    }
+  </style>
+</head>
+
+<body
+  class="bg-gradient-to-br from-slate-50 to-gray-100 min-h-screen flex flex-col items-center justify-start pt-10 pb-16">
+  <div class="w-full max-w-[1080px] px-4">
+    <!-- 标题区域 -->
+    <div class="text-center mb-10">
+      <h1 class="text-3xl font-bold text-black">键盘测试工具</h1>
+      <p class="text-black opacity-70 mt-2">简单高效地测试您的键盘性能</p>
+    </div>
+
+    <!-- 测试数据卡片 -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+      <div class="grid grid-cols-3 gap-4">
+        <div class="text-center">
+          <p class="text-black opacity-60 text-sm">按键次数</p>
+          <h3 class="text-black text-2xl font-bold" id="key-count">0</h3>
+        </div>
+        <div class="text-center">
+          <p class="text-black opacity-60 text-sm">当前按键</p>
+          <h3 class="text-black text-2xl font-bold" id="current-key">-</h3>
+        </div>
+        <div class="text-center">
+          <p class="text-black opacity-60 text-sm">响应时间</p>
+          <h3 class="text-black text-2xl font-bold" id="response-time">0 ms</h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- 按键历史记录 -->
+    <div id="key-history-panel"
+      class="fixed right-4 top-36 w-80 bg-white rounded-2xl shadow-lg transition-transform duration-300">
+      <div class="p-4">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-black text-lg font-medium">按键历史记录</h2>
+          <div class="flex gap-2">
+            <button id="clear-history-btn"
+              class="p-2 rounded-lg bg-gray-100 text-black hover:bg-gray-200 transition-colors">
+              <i class="ri-delete-bin-line"></i>
+            </button>
+            <button id="toggle-history-btn"
+              class="p-2 rounded-lg bg-gray-100 text-black hover:bg-gray-200 transition-colors">
+              <i class="ri-arrow-right-s-line"></i>
+            </button>
+          </div>
+        </div>
+        <div id="key-history" class="max-h-[70vh] overflow-y-auto">
+          <table class="w-full text-sm">
+            <thead class="text-black opacity-70">
+              <tr>
+                <th class="text-left py-2">按键</th>
+                <th class="text-left py-2">时间</th>
+                <th class="text-left py-2">间隔</th>
+              </tr>
+            </thead>
+            <tbody id="key-history-body" class="text-black">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 虚拟键盘显示区 -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+      <h2 class="text-black text-lg font-medium mb-4">按键可视化</h2>
+
+      <!-- 第一行键盘 -->
+      <div class="flex justify-center gap-1 mb-1">
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="Escape">Esc</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="F1">F1</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="F2">F2</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="F3">F3</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="F4">F4</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="F5">F5</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="F6">F6</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="F7">F7</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="F8">F8</div>
+      </div>
+
+      <!-- 第二行键盘 -->
+      <div class="flex justify-center gap-1 mb-1">
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="`">`</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="1">1</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="2">2</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="3">3</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="4">4</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="5">5</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="6">6</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="7">7</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="8">8</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="9">9</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="0">0</div>
+      </div>
+
+      <!-- 第三行键盘 -->
+      <div class="flex justify-center gap-1 mb-1">
+        <div class="key gradient-bg h-12 w-16 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="Tab">Tab</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="q">Q</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="w">W</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="e">E</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="r">R</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="t">T</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="y">Y</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="u">U</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="i">I</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="o">O</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="p">P</div>
+      </div>
+
+      <!-- 第四行键盘 -->
+      <div class="flex justify-center gap-1 mb-1">
+        <div class="key gradient-bg h-12 w-20 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="CapsLock">Caps</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="a">A</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="s">S</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="d">D</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="f">F</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="g">G</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="h">H</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="j">J</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="k">K</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="l">L</div>
+      </div>
+
+      <!-- 第五行键盘 -->
+      <div class="flex justify-center gap-1 mb-1">
+        <div class="key gradient-bg h-12 w-24 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="Shift">Shift</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="z">Z</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="x">X</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="c">C</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="v">V</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="b">B</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="n">N</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="m">M</div>
+        <div class="key gradient-bg h-12 w-24 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="Enter">Enter</div>
+      </div>
+
+      <!-- 最后一行键盘 -->
+      <div class="flex justify-center gap-1">
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="Control">Ctrl</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="Meta">Win</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="Alt">Alt</div>
+        <div class="key gradient-bg h-12 w-48 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key=" ">Space</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="ArrowLeft">←</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="ArrowUp">↑</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="ArrowDown">↓</div>
+        <div class="key gradient-bg h-12 w-12 rounded-lg shadow flex items-center justify-center text-black font-medium"
+          data-key="ArrowRight">→</div>
+      </div>
+    </div>
+    <!-- 输入测试区域 -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+      <div class="mb-4">
+        <label for="test-area" class="text-black text-sm mb-2 block opacity-70">输入测试区域</label>
+        <textarea id="test-area"
+          class="w-full h-32 border border-gray-200 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+          placeholder="点击此处并开始输入以测试您的键盘..."></textarea>
+      </div>
+      <div class="flex justify-between items-center">
+        <p class="text-black opacity-60 text-sm"><i class="ri-information-line mr-1"></i> 输入文本将自动检测键盘性能</p>
+        <button id="clear-btn" class="px-4 py-2 rounded-lg bg-gray-100 text-black hover:bg-gray-200 transition-colors">
+          <i class="ri-delete-bin-line mr-1"></i> 清除
+        </button>
+      </div>
+    </div>
+
+    <!-- 使用说明卡片 -->
+    <div class="bg-white rounded-2xl shadow-lg p-6">
+      <h2 class="text-black text-lg font-medium mb-3">使用说明</h2>
+      <ul class="text-black opacity-70 text-sm space-y-2">
+        <li class="flex items-start">
+          <i class="ri-arrow-right-s-line mt-0.5 mr-2"></i>
+          <span>按任意键开始测试，虚拟键盘会实时显示您按下的按键</span>
+        </li>
+        <li class="flex items-start">
+          <i class="ri-arrow-right-s-line mt-0.5 mr-2"></i>
+          <span>在输入测试区域可以检验实际打字效果</span>
+        </li>
+        <li class="flex items-start">
+          <i class="ri-arrow-right-s-line mt-0.5 mr-2"></i>
+          <span>统计面板会显示您的按键次数和响应时间</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const keyCount = document.getElementById('key-count');
+      const currentKey = document.getElementById('current-key');
+      const responseTime = document.getElementById('response-time');
+      const testArea = document.getElementById('test-area');
+      const clearBtn = document.getElementById('clear-btn');
+      const keys = document.querySelectorAll('.key');
+      const keyHistoryBody = document.getElementById('key-history-body');
+      const clearHistoryBtn = document.getElementById('clear-history-btn');
+      const keyHistoryPanel = document.getElementById('key-history-panel');
+      const toggleHistoryBtn = document.getElementById('toggle-history-btn');
+      let isHistoryPanelCollapsed = false;
+
+      let count = 0;
+      let lastPressTime = 0;
+      let keyHistory = [];
+
+      // 键盘事件监听
+      document.addEventListener('keydown', function (e) {
+        const key = e.key;
+        const now = performance.now();
+        const timeDiff = lastPressTime !== 0 ? Math.round(now - lastPressTime) : 0;
+
+        // 更新统计信息
+        count++;
+        keyCount.textContent = count;
+        currentKey.textContent = key === ' ' ? 'Space' : key;
+
+        if (lastPressTime !== 0) {
+          responseTime.textContent = timeDiff + ' ms';
+        }
+
+        // 记录按键历史
+        const keyInfo = {
+          key: key === ' ' ? 'Space' : key,
+          timestamp: new Date().toLocaleTimeString(),
+          timeDiff: timeDiff
+        };
+        keyHistory.unshift(keyInfo);
+
+        // 限制历史记录最大数量为50条
+        if (keyHistory.length > 50) {
+          keyHistory.pop();
+        }
+
+        // 更新历史记录显示
+        updateKeyHistory();
+
+        // 更新最后按键时间
+        lastPressTime = now;
+
+        // 高亮显示按键
+        const keyElement = document.querySelector(`.key[data-key="${key}"]`);
+        if (keyElement) {
+          keyElement.classList.add('active');
+          setTimeout(() => {
+            keyElement.classList.remove('active');
+          }, 100);
+        }
+      });
+
+      function updateKeyHistory() {
+        keyHistoryBody.innerHTML = keyHistory.map((info, index) => `
+          <tr class="border-t border-gray-100 ${index === 0 ? 'bg-gray-100' : ''}">
+            <td class="py-2">${info.key}</td>
+            <td class="py-2">${info.timestamp}</td>
+            <td class="py-2">${info.timeDiff} ms</td>
+          </tr>
+        `).join('');
+      }
+
+      // 清除历史记录按钮事件
+      clearHistoryBtn.addEventListener('click', function () {
+        keyHistory = [];
+        updateKeyHistory();
+      });
+
+      // 切换历史记录面板显示状态
+      toggleHistoryBtn.addEventListener('click', function () {
+        isHistoryPanelCollapsed = !isHistoryPanelCollapsed;
+        if (isHistoryPanelCollapsed) {
+          keyHistoryPanel.style.transform = 'translateX(calc(100% - 48px))';
+          toggleHistoryBtn.innerHTML = '<i class="ri-arrow-left-s-line"></i>';
+        } else {
+          keyHistoryPanel.style.transform = 'translateX(0)';
+          toggleHistoryBtn.innerHTML = '<i class="ri-arrow-right-s-line"></i>';
+        }
+      });
+
+      // 修改原有的清除按钮事件
+      clearBtn.addEventListener('click', function () {
+        testArea.value = '';
+        count = 0;
+        keyCount.textContent = '0';
+        currentKey.textContent = '-';
+        responseTime.textContent = '0 ms';
+        lastPressTime = 0;
+        keyHistory = [];
+        updateKeyHistory();
+      });
+    });
+  </script>
+</body>
+
+</html>
